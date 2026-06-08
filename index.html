@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>開放 KAIHŌ — 経営判断の言語化と権限委譲の仕組み化（モック）</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Space+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper:'#F2EDE3', paper2:'#E9E2D3', card:'#FBF8F1',
+          ink:'#1B1A16', teal:'#0F5E58', tealbri:'#15847C', gold:'#A86E1A', terra:'#B0492B',
+        },
+        fontFamily: {
+          mincho:['"Shippori Mincho"','serif'],
+          gothic:['"Zen Kaku Gothic New"','sans-serif'],
+          mono:['"Space Mono"','monospace'],
+          frau:['"Fraunces"','serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root{
+    --paper:#F2EDE3; --paper2:#E9E2D3; --card:#FBF8F1;
+    --ink:#1B1A16; --ink-2:#3D3A30; --ink-3:#615C4D;
+    --line:rgba(27,26,22,.18); --teal:#0F5E58; --teal-bri:#15847C; --gold:#A86E1A; --terra:#B0492B;
+  }
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Zen Kaku Gothic New",sans-serif;
+    font-size:17px; line-height:1.7; -webkit-font-smoothing:antialiased; letter-spacing:.005em;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.45;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  .mincho{font-family:"Shippori Mincho",serif;}
+  .mono{font-family:"Space Mono",monospace;}
+  .frau{font-family:"Fraunces",serif;font-variation-settings:"opsz" 40;}
+  .label{font-family:"Space Mono",monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);}
+  .soft{color:var(--ink-2);}
+  .soft2{color:var(--ink-3);}
+  .hairline{border-color:var(--line);}
+  .step-section{display:none;}
+  .step-section.active{display:block;animation:fade .5s ease both;}
+  @keyframes fade{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .reveal{opacity:0;animation:fade .6s ease forwards;}
+  .navbtn{position:relative;color:var(--ink-3);transition:color .2s;}
+  .navbtn .barline{position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+  .navbtn.on .barline{transform:scaleX(1);}
+  .navbtn.on{color:var(--ink);}
+  .ai-scan{position:relative;overflow:hidden;}
+  .ai-scan::after{content:"";position:absolute;top:0;left:-40%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(168,110,26,.22),transparent);animation:scan 2.6s ease-in-out infinite;}
+  @keyframes scan{0%{left:-40%;}60%,100%{left:120%;}}
+  .pulse-dot{animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  input[type=range]{-webkit-appearance:none;height:5px;background:var(--line);border-radius:99px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--teal);cursor:pointer;border:3px solid var(--card);box-shadow:0 0 0 1px var(--teal);}
+  .quad-dot{transition:transform .25s,box-shadow .25s;cursor:pointer;}
+  .quad-dot:hover{transform:translate(-50%,-50%) scale(1.16);z-index:30;}
+  ::selection{background:var(--gold);color:#fff;}
+  .card-shadow{box-shadow:0 1px 0 rgba(27,26,22,.05),0 20px 44px -30px rgba(27,26,22,.55);}
+  details>summary{list-style:none;cursor:pointer;}
+  details>summary::-webkit-details-marker{display:none;}
+  details[open] .chev{transform:rotate(90deg);}
+  .chev{transition:transform .25s;}
+  .b-tab{color:var(--ink-3);border-bottom:3px solid transparent;margin-bottom:-1px;}
+  .b-tab.on{color:var(--ink);border-bottom-color:var(--ink);}
+  .a2tab.on{background:var(--ink);color:var(--paper);}
+  .roletab{color:var(--ink-3);border:2px solid var(--line);}
+  .roletab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  /* toggle switch */
+  .tg{width:54px;height:30px;border-radius:99px;background:rgba(27,26,22,.2);position:relative;transition:.25s;cursor:pointer;flex-shrink:0;}
+  .tg.on{background:var(--teal);}
+  .tg::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.25s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+  .tg.on::after{left:27px;}
+  .pip{display:inline-block;width:11px;height:11px;border-radius:50%;margin:0 1.5px;}
+</style>
+</head>
+<body class="relative">
+<div class="relative z-10">
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 backdrop-blur-md bg-[#F2EDE3]/90 border-b hairline">
+  <div class="max-w-[1200px] mx-auto px-6">
+    <div class="flex items-center justify-between h-[68px]">
+      <div class="flex items-baseline gap-3">
+        <span class="mincho text-[28px] font-extrabold tracking-tight">開放</span>
+        <span class="frau text-[15px] tracking-[.3em] soft" style="font-variation-settings:'opsz' 20;">KAIHŌ</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-1 text-[15px]">
+        <button data-step="s0"  class="navbtn on px-3.5 py-6 font-medium">00 言語化WS<span class="barline"></span></button>
+        <button data-step="a1"  class="navbtn px-3.5 py-6 font-medium">A‑1 要件<span class="barline"></span></button>
+        <button data-step="a2"  class="navbtn px-3.5 py-6 font-medium">A‑2 評価<span class="barline"></span></button>
+        <button data-step="b"   class="navbtn px-3.5 py-6 font-medium">B 可視化<span class="barline"></span></button>
+        <button data-step="c"   class="navbtn px-3.5 py-6 font-medium">C アクション<span class="barline"></span></button>
+        <button data-step="val" class="navbtn px-3.5 py-6 font-medium">価値構造<span class="barline"></span></button>
+      </nav>
+      <div class="label hidden lg:block">MOCK</div>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1200px] mx-auto px-6">
+
+<!-- ===================== STEP 00 ===================== -->
+<section id="s0" class="step-section active py-16 md:py-20">
+  <!-- hero -->
+  <div class="grid md:grid-cols-12 gap-10 items-center mb-16">
+    <div class="md:col-span-7 reveal">
+      <div class="label text-gold mb-5">Phase 00 — 事業人が伴走する工程</div>
+      <h1 class="mincho text-[2.8rem] md:text-[4rem] leading-[1.1] font-bold tracking-tight">
+        経営者の判断軸を、<br/>言語化し、<br class="md:hidden"/><span class="relative whitespace-nowrap">運用に乗せる。<span class="absolute left-0 -bottom-1 w-full h-[4px] bg-gold/70"></span></span>
+      </h1>
+      <p class="mt-7 text-xl soft leading-relaxed max-w-lg">困りごとの解決ではなく、<b class="text-ink font-bold">潜在ポテンシャルの開放</b>。</p>
+    </div>
+    <div class="md:col-span-5 reveal" style="animation-delay:.1s">
+      <div class="bg-card border-2 hairline card-shadow p-7">
+        <div class="label mb-4">このプロダクトの位置づけ</div>
+        <dl class="space-y-4 text-[17px]">
+          <div class="flex gap-4"><dt class="font-bold text-gold w-14 shrink-0">対象</dt><dd>CEO・経営チーム → マネージャー層への権限委譲</dd></div>
+          <div class="flex gap-4"><dt class="font-bold text-gold w-14 shrink-0">狙い</dt><dd>事業家人材の育成と委譲を仕組み化し、成長角度を上げる</dd></div>
+          <div class="flex gap-4"><dt class="font-bold text-gold w-14 shrink-0">提供</dt><dd>事業人の伴走（Phase00）＋ AI運用（A‑1〜C）</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- 開放 — 3 visual tiles -->
+  <div class="reveal grid md:grid-cols-3 gap-px bg-[var(--line)] border-2 hairline mb-20" style="animation-delay:.18s">
+    <div class="bg-card p-8 text-center">
+      <div class="frau text-5xl md:text-6xl text-gold mb-3 font-semibold">25°→60°</div>
+      <div class="text-lg font-bold">成長角度の天井を開放</div>
+    </div>
+    <div class="bg-card p-8 text-center">
+      <div class="mincho text-5xl md:text-6xl font-bold mb-3">出力 ↑</div>
+      <div class="text-lg font-bold">人を減らさず組織の出力を上げる</div>
+    </div>
+    <div class="bg-card p-8 text-center">
+      <div class="mincho text-4xl md:text-5xl font-bold mb-3 mt-2">脱・属人化</div>
+      <div class="text-lg font-bold">経営者に依存しない意思決定</div>
+    </div>
+  </div>
+
+  <!-- WS flow diagram -->
+  <div class="reveal" style="animation-delay:.26s">
+    <div class="flex items-baseline gap-4 mb-2 border-b-2 hairline pb-4">
+      <span class="frau text-5xl soft2">00</span>
+      <h2 class="mincho text-3xl font-bold">組織運営哲学・言語化WS</h2>
+      <span class="label text-teal ml-auto hidden sm:block">事業人 × 経営チームの対話工程</span>
+    </div>
+
+    <p class="text-[17px] soft leading-relaxed max-w-3xl mt-8">
+      ここは画面ではなく <b class="text-ink">対話の工程</b>です。経営者が「何を見て（A・B・C）、どう意思決定（D）しているか」を、事業人が問いを投げながら引き出し、一緒に構造化します。
+      重要なのは単なる組み合わせの抽出ではなく、<b class="text-ink">「そのCは本当に必要か？」「AとBだけで足りないか？」</b>と問い直すプロセスそのもの。ここが会社のオリジナリティであり、最大の提供価値になります。
+    </p>
+
+    <div class="grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 md:gap-2 items-stretch mt-10">
+      <!-- node 1 -->
+      <div class="bg-paper2/50 border-2 hairline p-7 text-center flex flex-col justify-center">
+        <div class="frau text-3xl soft2 mb-3">01</div>
+        <div class="mincho text-2xl font-bold mb-2">暗黙の判断軸</div>
+        <div class="text-base soft">経営者本人も<br/>言葉にできていない</div>
+      </div>
+      <!-- arrow 1 -->
+      <div class="flex md:flex-col items-center justify-center gap-2 py-2 md:py-0">
+        <span class="frau text-4xl text-gold rotate-90 md:rotate-0">→</span>
+        <span class="label text-gold text-center leading-tight">対話で<br class="hidden md:block"/>引き出す</span>
+      </div>
+      <!-- node 2 -->
+      <div class="bg-gold/10 border-2 border-gold/40 p-7 text-center flex flex-col justify-center">
+        <div class="frau text-3xl text-gold/60 mb-3">02</div>
+        <div class="mincho text-2xl font-bold mb-2">言語化・構造化</div>
+        <div class="text-base soft">余計な変数を削ぎ<br/>判断軸を確定</div>
+      </div>
+      <!-- arrow 2 -->
+      <div class="flex md:flex-col items-center justify-center gap-2 py-2 md:py-0">
+        <span class="frau text-4xl text-teal rotate-90 md:rotate-0">→</span>
+        <span class="label text-teal text-center leading-tight">AIに<br class="hidden md:block"/>接続</span>
+      </div>
+      <!-- node 3 -->
+      <div class="bg-teal/10 border-2 border-teal/40 p-7 text-center flex flex-col justify-center">
+        <div class="frau text-3xl text-teal/60 mb-3">03</div>
+        <div class="mincho text-2xl font-bold mb-2">運用ループ</div>
+        <div class="text-base soft">要件→評価→委譲判定が<br/>回り続ける</div>
+      </div>
+    </div>
+
+    <!-- なぜ難しく、なぜ価値があるか -->
+    <div class="grid md:grid-cols-3 gap-px bg-[var(--line)] border-2 hairline mt-12">
+      <div class="bg-card p-7">
+        <div class="label text-gold mb-3">引き出す</div>
+        <p class="text-[16px] soft leading-relaxed">暗黙の判断軸を言葉にする。経営者本人も無自覚なため、対峙経験と問いの設計（EQ）がいる。ここは事業人が深く入らないと成立しない。</p>
+      </div>
+      <div class="bg-card p-7">
+        <div class="label text-gold mb-3">構造化する</div>
+        <p class="text-[16px] soft leading-relaxed">「3を出す」のが1+2なのか5−2なのか——その<b class="text-ink">数式こそが会社の個性</b>。汎用化して潰さず、余計に見ている変数だけを削いでガードレールを引く。</p>
+      </div>
+      <div class="bg-card p-7">
+        <div class="label text-gold mb-3">運用に乗せる</div>
+        <p class="text-[16px] soft leading-relaxed">複数経営者（CEOとNo.2）の判断軸の差分も突き合わせて合意形成。確定した軸をAIの入力口に接続すれば、以降の判定は出力され続ける。</p>
+      </div>
+    </div>
+
+    <!-- handoff -->
+    <div class="mt-10 bg-paper2/60 border-2 hairline p-6 flex flex-col md:flex-row md:items-center gap-5">
+      <div class="flex-1">
+        <div class="label mb-1">この工程のアウトプット</div>
+        <p class="text-[17px]">確定した <b>判断軸</b>。これが等級定義・JD・事業戦略・組織図と <b>統合</b>され、次工程 A‑1 のインプットになります。</p>
+      </div>
+      <button data-step="a1" class="goto shrink-0 group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">
+        判断軸を A‑1 へ <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STEP A-1 ===================== -->
+<section id="a1" class="step-section py-14 md:py-16">
+  <div class="flex items-baseline gap-4 mb-8">
+    <span class="frau text-5xl soft2">A‑1</span>
+    <h2 class="mincho text-3xl font-bold">等級 × 職種ごとの要件マトリクス</h2>
+  </div>
+
+  <!-- ============ INPUT VIEW ============ -->
+  <div id="a1-input">
+    <div class="label mb-6">STEP 1 — インプットを揃えて生成する</div>
+    <div class="grid md:grid-cols-2 gap-6 mb-9 items-start">
+      <!-- Zone1 : Phase00 auto-linked -->
+      <div class="bg-card border-2 border-gold/40 card-shadow p-7 h-full">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[18px] font-bold text-gold">① 組織哲学・判断軸</div>
+          <span class="mono text-[12px] px-2.5 py-1 bg-gold/15 text-gold border-2 border-gold/35">✓ Phase00から自動連携</span>
+        </div>
+        <p class="text-[14px] soft mb-4">言語化WSで確定した内容が、ここに連携されています。</p>
+        <div class="flex flex-wrap gap-2">
+          <span class="text-[14px] px-3 py-1.5 border-2 border-gold/45 bg-gold/10">✓ 組織運営哲学</span>
+          <span class="text-[14px] px-3 py-1.5 border-2 border-gold/45 bg-gold/10">✓ 独自の判断軸（A・B・C…）</span>
+          <span class="text-[14px] px-3 py-1.5 border-2 border-gold/45 bg-gold/10">✓ 委譲のガードレール</span>
+        </div>
+      </div>
+      <!-- Zone2 : attach docs -->
+      <div class="bg-card border-2 hairline card-shadow p-7 h-full">
+        <div class="flex items-center justify-between mb-3">
+          <div class="text-[18px] font-bold text-teal">② 型のある社内資料を添付</div>
+          <span class="mono text-[13px] soft">添付 <span id="a1-doc-count" class="font-bold text-teal">0</span>/4</span>
+        </div>
+        <p class="text-[14px] soft mb-4">クリックで添付（デモ）。等級定義・JD・事業戦略・組織図を読み込みます。</p>
+        <div class="grid grid-cols-2 gap-3" id="a1-docs"></div>
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-center gap-5">
+      <button id="a1-generate" class="inline-flex items-center gap-3 px-9 py-5 text-[18px] font-bold bg-ink/15 text-ink/40 cursor-not-allowed transition">
+        <span class="w-3 h-3 rounded-full bg-current"></span>
+        <span>AI で要件マトリクスを生成</span>
+      </button>
+      <span id="a1-gen-hint" class="text-[15px] soft">社内資料を1つ以上添付すると生成できます。</span>
+    </div>
+  </div>
+
+  <!-- ============ LOADING ============ -->
+  <div id="a1-loading" class="hidden">
+    <div class="bg-[#1B1A16] text-paper p-14 card-shadow ai-scan text-center">
+      <div class="flex items-center justify-center gap-3 mb-5">
+        <span class="w-3.5 h-3.5 rounded-full bg-gold pulse-dot"></span><span class="label text-gold">AI 生成中</span>
+      </div>
+      <div class="mincho text-2xl leading-relaxed">組織哲学と社内資料を統合し、<br/>等級 × 職種ごとの要件を生成しています…</div>
+    </div>
+  </div>
+
+  <!-- ============ RESULT VIEW ============ -->
+  <div id="a1-result" class="hidden">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2 bg-paper2/60 border-2 hairline px-5 py-4 mb-8">
+      <span class="label">生成に使ったインプット</span>
+      <span class="text-[15px]">組織哲学・判断軸 ＋ 社内資料 <span id="a1-sum-docs" class="font-bold text-teal">0</span>点</span>
+      <button id="a1-edit" class="ml-auto text-[15px] underline soft hover:text-ink">← インプットを修正して再生成</button>
+    </div>
+
+    <!-- 職種 selector -->
+    <div class="flex flex-wrap items-center gap-3 mb-5">
+      <span class="label">職種を選択</span>
+      <div id="a1-roletabs" class="flex flex-wrap gap-2"></div>
+    </div>
+
+    <!-- note + counter -->
+    <div class="flex flex-wrap items-center gap-5 mb-4">
+      <p class="text-[15px] soft max-w-xl">各判断軸を <b class="text-ink">要件に反映する／しない</b> を経営者が判断。等級ごとの要求レベル（●）はAIの提案値です。</p>
+      <div class="ml-auto flex items-center gap-4">
+        <span class="mono text-[16px]">反映中 <span id="a1-count" class="font-bold text-teal">0</span>/7</span>
+        <button id="a1-confirm-all" class="text-[15px] border-2 hairline px-5 py-2.5 hover:bg-ink hover:text-paper transition font-medium">すべて反映</button>
+      </div>
+    </div>
+
+    <div class="bg-card border-2 hairline card-shadow overflow-x-auto">
+      <table class="w-full text-[16px] min-w-[760px]">
+        <thead>
+          <tr class="bg-paper2/70 border-b-2 hairline text-left">
+            <th class="py-4 px-5 font-bold w-[40%]">コンピテンシー / 判断軸</th>
+            <th class="py-4 px-3 font-bold text-center" id="a1-g0"></th>
+            <th class="py-4 px-3 font-bold text-center" id="a1-g1"></th>
+            <th class="py-4 px-3 font-bold text-center" id="a1-g2"></th>
+            <th class="py-4 px-4 font-bold text-center w-[120px]">要件に反映</th>
+          </tr>
+        </thead>
+        <tbody id="a1-body"></tbody>
+      </table>
+    </div>
+    <div class="mt-8 flex justify-end">
+      <button data-step="a2" class="goto group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">評価へ進む <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STEP A-2 ===================== -->
+<section id="a2" class="step-section py-14 md:py-16">
+  <div class="flex items-baseline gap-4 mb-8">
+    <span class="frau text-5xl soft2">A‑2</span>
+    <h2 class="mincho text-3xl font-bold">評価入力 ＋ AI検証</h2>
+  </div>
+
+  <div class="flex flex-wrap gap-2.5 mb-8" id="a2-tabs"></div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-card border-2 hairline card-shadow p-6 md:p-8">
+      <div class="flex items-center justify-between mb-7">
+        <div>
+          <div id="a2-name" class="mincho text-2xl font-bold"></div>
+          <div id="a2-role" class="text-[15px] soft mt-1"></div>
+        </div>
+        <div class="label">CxO 主観評価</div>
+      </div>
+      <div id="a2-sliders" class="space-y-6"></div>
+    </div>
+
+    <div class="bg-[#1B1A16] text-paper p-7 card-shadow ai-scan">
+      <div class="flex items-center gap-2.5 mb-6">
+        <span class="w-2.5 h-2.5 rounded-full bg-gold pulse-dot"></span><span class="label text-gold">AI 検証エンジン</span>
+      </div>
+      <div id="a2-alerts" class="space-y-5"></div>
+      <div class="mt-7 pt-5 border-t border-white/15 text-[13px] leading-relaxed text-paper/65 mono">突合ソース：1on1ログ / 過去評価 / 担当PJ実績</div>
+    </div>
+  </div>
+  <div class="mt-8 flex justify-end">
+    <button data-step="b" class="goto group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">可視化する <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span></button>
+  </div>
+</section>
+
+<!-- ===================== STEP B ===================== -->
+<section id="b" class="step-section py-14 md:py-16">
+  <div class="flex items-baseline gap-4 mb-8">
+    <span class="frau text-5xl soft2">B</span>
+    <h2 class="mincho text-3xl font-bold">ギャップの多角的可視化</h2>
+  </div>
+
+  <div class="flex flex-wrap gap-2 mb-8 border-b-2 hairline" id="b-tabs">
+    <button data-btab="map"  class="b-tab on px-5 py-3.5 text-[16px] font-medium">2軸マップ</button>
+    <button data-btab="heat" class="b-tab px-5 py-3.5 text-[16px] font-medium">充足度ヒートマップ</button>
+    <button data-btab="pot"  class="b-tab px-5 py-3.5 text-[16px] font-medium">成長ポテンシャル</button>
+  </div>
+
+  <!-- map -->
+  <div id="b-map" class="b-panel">
+    <div class="grid lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2 bg-card border-2 hairline card-shadow p-8 pr-12">
+        <div class="relative aspect-square w-full max-w-[540px] mx-auto" id="quad-wrap">
+          <div class="absolute inset-0 grid grid-cols-2 grid-rows-2">
+            <div class="border-r-2 border-b-2 hairline bg-gold/5 p-3"><span class="label text-gold/80">育成投資</span></div>
+            <div class="border-b-2 hairline bg-teal/10 p-3 text-right"><span class="label text-teal">即・委譲候補</span></div>
+            <div class="border-r-2 hairline p-3 flex items-end"><span class="label soft2">別途検討</span></div>
+            <div class="p-3 flex items-end justify-end"><span class="label soft text-right">現状維持・横展開</span></div>
+          </div>
+          <div class="absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full pb-1 label">成長ポテンシャル 高 ↑</div>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 translate-y-full pt-1 label">↓ 低</div>
+          <div class="absolute top-1/2 -right-3 translate-x-full -translate-y-1/2 label [writing-mode:vertical-rl]">要件充足度 高 →</div>
+          <div id="quad-dots" class="absolute inset-0"></div>
+        </div>
+      </div>
+      <div class="bg-card border-2 hairline card-shadow p-6">
+        <div class="label mb-5">マネージャー（クリックで詳細）</div>
+        <div id="b-legend" class="space-y-3"></div>
+        <div id="b-detail" class="mt-6 pt-5 border-t-2 hairline text-[15px] soft">点をホバー／クリックで要約が出ます。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- heat -->
+  <div id="b-heat" class="b-panel hidden">
+    <div class="bg-card border-2 hairline card-shadow p-6 overflow-x-auto">
+      <table class="w-full text-[15px] border-collapse" id="heat-table"></table>
+      <div class="flex items-center gap-3 mt-6 text-[14px] soft">
+        <span>充足度</span><span class="inline-block w-28 h-4" style="background:linear-gradient(90deg,#B0492B,#D9B26A,#3E8E7E)"></span><span>低 → 高</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- pot -->
+  <div id="b-pot" class="b-panel hidden">
+    <div class="bg-card border-2 hairline card-shadow p-7 md:p-9">
+      <div class="flex items-start gap-3 mb-8 text-[15px] bg-gold/10 border-2 border-gold/30 p-4">
+        <span class="text-gold mt-px text-lg">⚠</span>
+        <span>成長ポテンシャルは <b>補助指標</b>。単独で判断せず、充足度と併せて参照する設計です。</span>
+      </div>
+      <div id="pot-bars" class="space-y-7"></div>
+    </div>
+  </div>
+
+  <div class="mt-8 flex justify-end">
+    <button data-step="c" class="goto group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">アクション提案へ <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span></button>
+  </div>
+</section>
+
+<!-- ===================== STEP C ===================== -->
+<section id="c" class="step-section py-14 md:py-16">
+  <div class="flex items-baseline gap-4 mb-8">
+    <span class="frau text-5xl soft2">C</span>
+    <h2 class="mincho text-3xl font-bold">アクション提案</h2>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-4" id="c-cards"></div>
+    <div class="space-y-6">
+      <div class="bg-card border-2 hairline card-shadow p-6">
+        <div class="label text-gold mb-5">昇格候補（次世代CEO/CxO）</div>
+        <div id="c-rank" class="space-y-5"></div>
+      </div>
+      <div class="bg-[#1B1A16] text-paper p-6 card-shadow">
+        <div class="label text-gold mb-3">判定根拠</div>
+        <p class="text-[15px] leading-relaxed text-paper/85">実績データとの統計的乖離を検出し、<b>補正後スコア</b>で委譲可否を判定。主観評価のみに依存しません。</p>
+      </div>
+    </div>
+  </div>
+  <div class="mt-8 flex justify-end">
+    <button data-step="val" class="goto group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">価値構造を見る <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span></button>
+  </div>
+</section>
+
+<!-- ===================== 価値構造 ===================== -->
+<section id="val" class="step-section py-16 md:py-20">
+  <div class="flex items-baseline gap-4 mb-3">
+    <span class="frau text-5xl soft2">★</span>
+    <h2 class="mincho text-3xl font-bold">価値はどこにあるか</h2>
+  </div>
+  <p class="text-xl soft leading-relaxed max-w-3xl mb-12">画面だけ見ると“自分でもできそう”。だが価値は、画面に映らない <b class="text-ink">Phase00（判断軸の言語化）</b> にある。</p>
+
+  <div class="grid md:grid-cols-5 gap-px bg-[var(--line)] border-2 hairline mb-14">
+    <div class="bg-gold/12 p-7 relative">
+      <div class="absolute top-3 right-3 label text-gold">本丸</div>
+      <div class="frau text-3xl text-gold mb-2">00</div>
+      <div class="mincho text-xl font-bold mb-2">判断軸の言語化</div>
+      <p class="text-[15px] soft leading-relaxed">暗黙知を引き出し構造化。最も難しく、最も価値ある工程。</p>
+    </div>
+    <div class="bg-card p-7"><div class="frau text-2xl soft2 mb-2">A‑1</div><div class="font-bold text-lg mb-1">要件生成</div><p class="text-[15px] soft">軸を等級×職種の要件に</p></div>
+    <div class="bg-card p-7"><div class="frau text-2xl soft2 mb-2">A‑2</div><div class="font-bold text-lg mb-1">評価＋検証</div><p class="text-[15px] soft">主観をAIが補正</p></div>
+    <div class="bg-card p-7"><div class="frau text-2xl soft2 mb-2">B</div><div class="font-bold text-lg mb-1">可視化</div><p class="text-[15px] soft">充足度×ポテンシャル</p></div>
+    <div class="bg-card p-7"><div class="frau text-2xl soft2 mb-2">C</div><div class="font-bold text-lg mb-1">委譲・育成</div><p class="text-[15px] soft">継続的に出力</p></div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-px bg-[var(--line)] border-2 hairline mb-14">
+    <div class="bg-card p-8">
+      <div class="label text-teal mb-4">事業人が握る価値（人にしかできない）</div>
+      <ul class="space-y-3 text-[16px]">
+        <li class="flex gap-3"><span class="text-teal font-bold">—</span>経営者の哲学・判断軸を引き出し、相対化して言語化</li>
+        <li class="flex gap-3"><span class="text-teal font-bold">—</span>複数経営者の“数式”の差分を突き合わせ、合意形成</li>
+        <li class="flex gap-3"><span class="text-teal font-bold">—</span>「余計に見ている変数」を削ぎ、ガードレールを設計</li>
+      </ul>
+    </div>
+    <div class="bg-card p-8">
+      <div class="label text-gold mb-4">AIが担う部分（仕組み化・自動化）</div>
+      <ul class="space-y-3 text-[16px]">
+        <li class="flex gap-3"><span class="text-gold font-bold">—</span>確定した軸での要件生成・評価検証・可視化</li>
+        <li class="flex gap-3"><span class="text-gold font-bold">—</span>トリガー変数の監視によるアラート</li>
+        <li class="flex gap-3"><span class="text-gold font-bold">—</span>入力口が決まれば、判定は出力され続ける</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="bg-[#1B1A16] text-paper p-8 card-shadow">
+      <div class="label text-gold mb-3">① 深さ — 経営課題そのものへ</div>
+      <p class="text-[16px] leading-relaxed text-paper/85">「事業家人材を量産する仕組み」全体の設計パートナーへ。</p>
+    </div>
+    <div class="bg-[#1B1A16] text-paper p-8 card-shadow">
+      <div class="label text-gold mb-3">② 横 — グループ会社・各部門へ</div>
+      <p class="text-[16px] leading-relaxed text-paper/85">子会社CEO育成・評価標準化・人材ポートフォリオ管理として横展開。</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="border-t-2 hairline mt-10">
+  <div class="max-w-[1200px] mx-auto px-6 py-8 flex flex-col md:flex-row gap-3 justify-between text-[14px] soft mono">
+    <span>開放 KAIHŌ — 経営判断の言語化と権限委譲の仕組み化</span>
+    <span>コンセプト確認用モック / 全データはダミー / 仮称・UIは変更前提</span>
+  </div>
+</footer>
+
+</div>
+
+<script>
+/* ============================ DATA ============================ */
+const COMPS = [
+  {id:'decision', name:'不確実下の事業判断', short:'事業判断', lvl:5, meaning:'撤退・投資の不可逆な意思決定を任せられるか'},
+  {id:'pl',       name:'PL・数値マネジメント', short:'数値',   lvl:4, meaning:'予実を自走管理し、変調を早期に察知できるか'},
+  {id:'people',   name:'人材の見立てと登用',   short:'登用',   lvl:5, meaning:'採用・配置・抜擢を任せられるか'},
+  {id:'market',   name:'顧客・市場の構造理解', short:'市場',   lvl:4, meaning:'事業の前提が崩れる兆しを構造で捉えられるか'},
+  {id:'vision',   name:'方向づけ・言語化',     short:'方向づけ',lvl:5, meaning:'曖昧な状況でチームに意味と方向を与えられるか'},
+  {id:'closing',  name:'修羅場の収束力',       short:'収束力', lvl:4, meaning:'発散した議論・対立を収束に持ち込めるか'},
+  {id:'autonomy', name:'権限の自己定義と自走', short:'自走',   lvl:5, meaning:'自ら権限の範囲を定義して動けるか'},
+];
+const MGRS = [
+  {name:'佐藤 健太', role:'第一事業部 部長', pot:86, sc:{decision:4,pl:4,people:5,market:4,vision:5,closing:4,autonomy:5},
+   alerts:[{comp:'closing',dir:'up',text:'1on1ログで収束局面の主導が頻出。評価(3)が実績より低い可能性。'}], verdict:'ok', tasks:['子会社の損益責任を段階委譲','次世代CEO候補として越境経験を付与']},
+  {name:'渡辺 翔', role:'新規事業 マネージャー', pot:90, sc:{decision:3,pl:3,people:4,market:5,vision:4,closing:3,autonomy:4},
+   alerts:[{comp:'decision',dir:'down',text:'PJ実績では不可逆判断の経験が少ない。評価(4)はやや高め。'}], verdict:'partial', tasks:['不可逆判断の同席→委譲','PLの自走管理を3ヶ月OJT']},
+  {name:'鈴木 美咲', role:'コーポレート マネージャー', pot:78, sc:{decision:3,pl:5,people:4,market:3,vision:3,closing:4,autonomy:3},
+   alerts:[{comp:'vision',dir:'down',text:'方向づけの発話量が少なめ。言語化機会の付与で伸びる余地。'}], verdict:'partial', tasks:['全社方針の翻訳・伝達役','市場構造の学習プログラム']},
+  {name:'田中 大輔', role:'第二事業部 部長', pot:54, sc:{decision:4,pl:4,people:4,market:4,vision:4,closing:4,autonomy:4},
+   alerts:[], verdict:'ok', tasks:['安定戦力として権限を維持・拡張','後進育成のメンター役']},
+  {name:'中村 彩花', role:'第一事業部 マネージャー', pot:62, sc:{decision:3,pl:3,people:3,market:3,vision:4,closing:3,autonomy:3},
+   alerts:[{comp:'people',dir:'up',text:'1on1での部下の見立て精度が高い。登用評価(3)は過小の可能性。'}], verdict:'partial', tasks:['小規模チームのリード経験','登用判断への関与を増やす']},
+  {name:'山本 怜', role:'第三事業部 マネージャー', pot:40, sc:{decision:2,pl:3,people:3,market:2,vision:2,closing:3,autonomy:2},
+   alerts:[], verdict:'no', tasks:['まず自走と数値管理の基礎を固める','権限委譲は次サイクルで再評価']},
+];
+const sumLvl = COMPS.reduce((a,c)=>a+c.lvl,0);
+const suff = m => Math.round(COMPS.reduce((s,c)=>s+Math.min(m.sc[c.id],c.lvl),0)/sumLvl*100);
+function heatColor(t){
+  const stops=[[176,73,43],[217,178,106],[62,142,126]];
+  t=Math.max(0,Math.min(1,t)); const seg=t<.5?0:1, lt=t<.5?t/.5:(t-.5)/.5;
+  const a=stops[seg],b=stops[seg+1]; const c=a.map((v,i)=>Math.round(v+(b[i]-v)*lt));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+const scoreC = m => suff(m)*0.6 + m.pot*0.4;
+const palette=['#0F5E58','#A86E1A','#B0492B','#3E6E8E','#7A5BA6','#4B7A3E'];
+
+/* ====================== NAV ====================== */
+const steps=['s0','a1','a2','b','c','val'];
+function showStep(id){
+  steps.forEach(s=>document.getElementById(s).classList.toggle('active',s===id));
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('on',b.dataset.step===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>showStep(b.dataset.step)));
+
+/* ====================== A-1 ====================== */
+const ROLES=[{id:'biz',name:'事業開発職'},{id:'corp',name:'コーポレート職'},{id:'new',name:'新規事業職'}];
+const GRADES=[{n:'M1',l:'マネージャー'},{n:'M2',l:'部長'},{n:'M3',l:'事業部長'}];
+// 職種ごとの要求レベル補正（M3=最上位を基準に、下位等級は逓減）
+const ROLE_OFFSET={
+  biz: {decision:0,pl:0,people:0,market:1,vision:0,closing:0,autonomy:0},
+  corp:{decision:-1,pl:1,people:0,market:-1,vision:0,closing:1,autonomy:-1},
+  new: {decision:1,pl:-1,people:-1,market:1,vision:0,closing:1,autonomy:0},
+};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function reqLvl(roleId,gradeIdx,c){
+  const base=clamp(c.lvl+(ROLE_OFFSET[roleId][c.id]||0),1,5);
+  return clamp(base-(2-gradeIdx),1,5); // M1=base-2, M2=base-1, M3=base
+}
+function pips(n,on){
+  let s=''; for(let i=1;i<=5;i++) s+=`<span class="pip" style="background:${i<=n?(on?'var(--teal)':'rgba(27,26,22,.28)'):'rgba(27,26,22,.12)'}"></span>`; return s;
+}
+const a1body=document.getElementById('a1-body');
+let a1state={}, a1role='biz';
+COMPS.forEach(c=>a1state[c.id]=false);
+
+/* --- インプット：社内資料の添付 --- */
+const DOCS=[
+  {key:'grade',label:'等級定義',file:'等級定義_v3.xlsx'},
+  {key:'jd',label:'職務記述書（JD）',file:'JD_全職種.pdf'},
+  {key:'strategy',label:'事業戦略',file:'FY26_事業戦略.pdf'},
+  {key:'org',label:'組織図',file:'組織図_2026Q2.png'},
+];
+let a1docs={}; DOCS.forEach(d=>a1docs[d.key]=false);
+const a1docCount=()=>Object.values(a1docs).filter(Boolean).length;
+const docsWrap=document.getElementById('a1-docs');
+function renderDocs(){
+  docsWrap.innerHTML='';
+  DOCS.forEach(d=>{
+    const on=a1docs[d.key]; const b=document.createElement('button');
+    b.className='text-left p-3.5 transition border-2 '+(on?'border-teal bg-teal/10':'border-dashed border-ink/35 hover:border-teal');
+    b.innerHTML = on
+      ? `<div class="text-[15px] font-bold text-teal">✓ ${d.label}</div><div class="text-[12px] soft mt-0.5 mono">${d.file}</div>`
+      : `<div class="text-[15px] font-medium">📎 ${d.label}</div><div class="text-[12px] soft2 mt-0.5">クリックで添付</div>`;
+    b.addEventListener('click',()=>{a1docs[d.key]=!a1docs[d.key];renderDocs();updateGenBtn();});
+    docsWrap.appendChild(b);
+  });
+  document.getElementById('a1-doc-count').textContent=a1docCount();
+}
+const genBtn=document.getElementById('a1-generate');
+const genHint=document.getElementById('a1-gen-hint');
+function updateGenBtn(){
+  const ready=a1docCount()>=1;
+  genBtn.className='inline-flex items-center gap-3 px-9 py-5 text-[18px] font-bold transition '+(ready?'bg-ink text-paper hover:opacity-90 cursor-pointer':'bg-ink/15 text-ink/40 cursor-not-allowed');
+  genHint.textContent = ready ? '生成すると、等級×職種ごとの要件マトリクスが出力されます。' : '社内資料を1つ以上添付すると生成できます。';
+}
+const showInput =()=>{['a1-loading','a1-result'].forEach(i=>document.getElementById(i).classList.add('hidden'));document.getElementById('a1-input').classList.remove('hidden');};
+genBtn.addEventListener('click',()=>{
+  if(a1docCount()<1) return;
+  document.getElementById('a1-input').classList.add('hidden');
+  document.getElementById('a1-loading').classList.remove('hidden');
+  setTimeout(()=>{
+    document.getElementById('a1-loading').classList.add('hidden');
+    document.getElementById('a1-result').classList.remove('hidden');
+    document.getElementById('a1-sum-docs').textContent=a1docCount();
+    renderA1();
+  },1500);
+});
+document.getElementById('a1-edit').addEventListener('click',showInput);
+renderDocs(); updateGenBtn();
+
+// header grade labels
+GRADES.forEach((g,i)=>document.getElementById('a1-g'+i).innerHTML=`${g.n}<br/><span class="text-[12px] soft font-normal">${g.l}</span>`);
+// role tabs
+const roletabs=document.getElementById('a1-roletabs');
+ROLES.forEach(r=>{
+  const b=document.createElement('button'); b.className='roletab px-4 py-2 text-[15px] font-medium transition'; b.textContent=r.name; b.dataset.r=r.id;
+  b.addEventListener('click',()=>{a1role=r.id;renderA1();}); roletabs.appendChild(b);
+});
+function renderA1(){
+  document.querySelectorAll('.roletab').forEach(b=>b.classList.toggle('on',b.dataset.r===a1role));
+  a1body.innerHTML='';
+  COMPS.forEach(c=>{
+    const on=a1state[c.id];
+    const tr=document.createElement('tr'); tr.className='border-b hairline last:border-0 transition'; tr.dataset.id=c.id;
+    if(on) tr.style.background='rgba(15,94,88,.05)';
+    tr.innerHTML=`
+      <td class="py-4 px-5">
+        <div class="font-bold text-[17px] ${on?'':'soft2'}">${c.name}</div>
+        <div class="text-[14px] leading-relaxed mt-0.5 ${on?'soft':'soft2'}">${c.meaning}</div>
+      </td>
+      ${GRADES.map((g,i)=>`<td class="px-3 text-center"><div class="flex justify-center mb-1">${pips(reqLvl(a1role,i,c),on)}</div><div class="mono text-[13px] ${on?'text-teal':'soft2'}">Lv${reqLvl(a1role,i,c)}</div></td>`).join('')}
+      <td class="px-4"><div class="flex justify-center"><div class="tg ${on?'on':''}" role="switch"></div></div></td>`;
+    tr.querySelector('.tg').addEventListener('click',()=>{a1state[c.id]=!a1state[c.id];renderA1();});
+    a1body.appendChild(tr);
+  });
+  document.getElementById('a1-count').textContent=Object.values(a1state).filter(Boolean).length;
+}
+document.getElementById('a1-confirm-all').addEventListener('click',()=>{COMPS.forEach(c=>a1state[c.id]=true);renderA1();});
+renderA1();
+
+/* ====================== A-2 ====================== */
+const a2tabs=document.getElementById('a2-tabs'); let a2sel=0;
+MGRS.forEach((m,i)=>{
+  const b=document.createElement('button'); b.className='a2tab px-5 py-2.5 text-[15px] border-2 hairline transition font-medium'; b.textContent=m.name;
+  b.addEventListener('click',()=>{a2sel=i;renderA2();}); a2tabs.appendChild(b);
+});
+function renderA2(){
+  const m=MGRS[a2sel];
+  document.querySelectorAll('.a2tab').forEach((b,i)=>b.classList.toggle('on',i===a2sel));
+  document.getElementById('a2-name').textContent=m.name; document.getElementById('a2-role').textContent=m.role;
+  const wrap=document.getElementById('a2-sliders'); wrap.innerHTML='';
+  COMPS.forEach(c=>{
+    const alert=m.alerts.find(a=>a.comp===c.id); const row=document.createElement('div');
+    row.innerHTML=`
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[16px] font-medium">${c.name}
+          ${alert?`<span class="alert-badge ml-2 mono text-[12px] px-2.5 py-1 bg-gold/15 text-gold border-2 border-gold/35 cursor-pointer">⚠ 乖離</span>`:''}</span>
+        <span class="mono text-[15px] soft"><span class="sv font-bold text-ink">${m.sc[c.id]}</span> / 要求 ${c.lvl}</span>
+      </div>
+      <input type="range" min="1" max="5" value="${m.sc[c.id]}" class="w-full" />
+      ${alert?`<div class="alert-detail hidden mt-3 text-[15px] leading-relaxed bg-gold/10 border-l-4 border-gold p-3.5">${alert.text}</div>`:''}`;
+    const range=row.querySelector('input'); range.addEventListener('input',()=>row.querySelector('.sv').textContent=range.value);
+    const badge=row.querySelector('.alert-badge'); if(badge) badge.addEventListener('click',()=>row.querySelector('.alert-detail').classList.toggle('hidden'));
+    wrap.appendChild(row);
+  });
+  const al=document.getElementById('a2-alerts');
+  al.innerHTML = m.alerts.length===0
+    ? `<div class="text-[16px] text-paper/85">検出された乖離はありません。<div class="text-paper/55 text-[14px] mt-1">主観評価と実績はおおむね整合的です。</div></div>`
+    : m.alerts.map(a=>{const c=COMPS.find(x=>x.id===a.comp);const arrow=a.dir==='up'?'↑ 過小評価の可能性':'↓ 過大評価の可能性';
+        return `<div class="border-l-4 border-gold pl-4"><div class="text-[14px] mono text-gold mb-1.5">${c.short} — ${arrow}</div><div class="text-[16px] leading-relaxed text-paper/90">${a.text}</div></div>`;}).join('');
+}
+renderA2();
+
+/* ====================== B ====================== */
+document.querySelectorAll('.b-tab').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.b-tab').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  document.querySelectorAll('.b-panel').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('b-'+b.dataset.btab).classList.remove('hidden');
+}));
+const dotsWrap=document.getElementById('quad-dots'), legend=document.getElementById('b-legend'), detail=document.getElementById('b-detail');
+function quadName(x,y){ if(x>=60&&y>=60)return '即・権限委譲候補'; if(x<60&&y>=60)return '育成投資すべき人材'; if(x>=60&&y<60)return '現状維持・横展開（安定戦力）'; return '別途検討'; }
+MGRS.forEach((m,i)=>{
+  const x=suff(m), y=m.pot;
+  const d=document.createElement('div');
+  d.className='quad-dot absolute w-9 h-9 rounded-full flex items-center justify-center text-white text-[14px] font-bold mono';
+  d.style.left=x+'%'; d.style.top=(100-y)+'%'; d.style.transform='translate(-50%,-50%)'; d.style.background=palette[i%palette.length]; d.style.boxShadow='0 3px 12px -2px rgba(0,0,0,.45)';
+  d.textContent=m.name.replace(/ .*/,'').slice(0,1);
+  const show=()=>{detail.innerHTML=`<div class="mincho text-[18px] font-bold">${m.name}</div><div class="text-[14px] soft mb-2">${m.role}</div><div class="mono text-[15px]">充足度 <b class="text-teal">${x}%</b> ／ ポテンシャル <b class="text-gold">${y}</b></div><div class="text-[15px] soft mt-1">${quadName(x,y)}</div>`;};
+  d.addEventListener('mouseenter',show); d.addEventListener('click',()=>showStep('c')); dotsWrap.appendChild(d);
+  const li=document.createElement('div'); li.className='flex items-center gap-3 text-[15px] cursor-pointer hover:opacity-70';
+  li.innerHTML=`<span class="w-4 h-4 rounded-full" style="background:${palette[i%palette.length]}"></span><span class="font-medium">${m.name}</span><span class="mono soft ml-auto">${x}% · ${y}</span>`;
+  li.addEventListener('mouseenter',show); li.addEventListener('click',()=>showStep('c')); legend.appendChild(li);
+});
+const heat=document.getElementById('heat-table');
+heat.innerHTML='<thead><tr><th class="text-left p-2.5 sticky left-0 bg-card"></th>'+COMPS.map(c=>`<th class="p-2.5 font-bold soft text-[14px] whitespace-nowrap">${c.short}</th>`).join('')+'</tr></thead><tbody>'+
+  MGRS.map(m=>'<tr><td class="p-2.5 font-bold whitespace-nowrap sticky left-0 bg-card">'+m.name+'</td>'+
+    COMPS.map(c=>`<td class="p-1.5"><div class="h-12 flex items-center justify-center text-white text-[15px] mono font-bold" style="background:${heatColor(m.sc[c.id]/c.lvl)}">${m.sc[c.id]}</div></td>`).join('')+'</tr>').join('')+'</tbody>';
+const potWrap=document.getElementById('pot-bars');
+[...MGRS].sort((a,b)=>b.pot-a.pot).forEach(m=>{
+  const row=document.createElement('div');
+  row.innerHTML=`<div class="flex items-center justify-between mb-2"><span class="text-[16px] font-medium">${m.name}<span class="soft text-[14px] ml-2">${m.role}</span></span><span class="mono text-[16px] text-gold font-bold">${m.pot}</span></div>
+    <div class="h-3 bg-[var(--line)] rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${m.pot}%;background:linear-gradient(90deg,#A86E1A,#15847C)"></div></div>`;
+  potWrap.appendChild(row);
+});
+
+/* ====================== C ====================== */
+const cWrap=document.getElementById('c-cards');
+const vmap={ok:{m:'✅',t:'委譲可',cls:'text-teal'},partial:{m:'🔺',t:'条件付き',cls:'text-gold'},no:{m:'❌',t:'時期尚早',cls:'text-terra'}};
+[...MGRS].sort((a,b)=>scoreC(b)-scoreC(a)).forEach(m=>{
+  const v=vmap[m.verdict]; const card=document.createElement('details'); card.className='bg-card border-2 hairline card-shadow';
+  card.innerHTML=`
+    <summary class="p-6 flex items-center gap-4">
+      <span class="text-2xl">${v.m}</span>
+      <div class="flex-1"><div class="mincho font-bold text-[19px]">${m.name}</div><div class="text-[14px] soft">${m.role}</div></div>
+      <div class="text-right"><div class="mono text-[15px] ${v.cls} font-bold">${v.t}</div><div class="mono text-[13px] soft">充足${suff(m)}% · ポテ${m.pot}</div></div>
+      <span class="chev soft2 frau text-2xl">›</span>
+    </summary>
+    <div class="px-6 pb-6 pt-1 border-t-2 hairline">
+      <div class="label text-gold mt-4 mb-3">育成プラン</div>
+      <ul class="space-y-2.5 text-[16px]">${m.tasks.map(t=>`<li class="flex gap-2.5"><span class="text-teal font-bold">—</span>${t}</li>`).join('')}</ul>
+      ${m.alerts.length?`<div class="mt-4 text-[14px] soft bg-gold/10 border-l-4 border-gold p-3">補正：${m.alerts[0].text}</div>`:''}
+    </div>`;
+  cWrap.appendChild(card);
+});
+const rank=document.getElementById('c-rank');
+[...MGRS].sort((a,b)=>scoreC(b)-scoreC(a)).slice(0,3).forEach((m,i)=>{
+  const sc=Math.round(scoreC(m)); const row=document.createElement('div');
+  row.innerHTML=`<div class="flex items-center gap-3 mb-1.5"><span class="frau text-2xl soft2">0${i+1}</span><span class="text-[16px] font-bold flex-1">${m.name}</span><span class="mono text-[16px] text-teal font-bold">${sc}</span></div>
+    <div class="h-2 bg-[var(--line)] rounded-full overflow-hidden ml-9"><div class="h-full bg-teal rounded-full" style="width:${sc}%"></div></div>`;
+  rank.appendChild(row);
+});
+
+showStep('s0');
+</script>
+</body>
+</html>
