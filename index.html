@@ -121,6 +121,7 @@
       </div>
       <nav class="hidden md:flex items-center gap-1 text-[15px]">
         <button data-step="s0"  class="navbtn on px-3.5 py-6 font-medium">00 言語化WS<span class="barline"></span></button>
+        <button data-step="s0b" class="navbtn px-3.5 py-6 font-medium">アウトプット<span class="barline"></span></button>
         <button data-step="a1"  class="navbtn px-3.5 py-6 font-medium">A‑1 要件<span class="barline"></span></button>
         <button data-step="a2"  class="navbtn px-3.5 py-6 font-medium">A‑2 評価<span class="barline"></span></button>
         <button data-step="b"   class="navbtn px-3.5 py-6 font-medium">B 可視化<span class="barline"></span></button>
@@ -251,12 +252,93 @@
     <div class="mt-10 bg-paper2/60 border hairline p-6 flex flex-col md:flex-row md:items-center gap-5">
       <div class="flex-1">
         <div class="text-[18px] font-bold text-gold mb-2">この工程のアウトプット</div>
-        <p class="text-[17px]">研ぎ澄まされた <b>判断軸</b>。これが等級定義・JD・事業戦略・組織図と <b>統合</b>され、次工程 A‑1 のインプットになります。</p>
+        <p class="text-[17px]">研ぎ澄まされた <b>判断軸</b>。これが「組織運営哲学」ドキュメントに構造化され、A‑1（等級×職種の要件）のインプットになります。</p>
       </div>
-      <button data-step="a1" class="goto shrink-0 group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">
-        判断軸を A‑1 へ <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span>
+      <button data-step="s0b" class="goto shrink-0 group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">
+        アウトプット例を見る <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span>
       </button>
     </div>
+  </div>
+</section>
+
+<!-- ===================== WS OUTPUT (00›) ===================== -->
+<section id="s0b" class="step-section py-14 md:py-16">
+  <div class="flex items-baseline gap-4 mb-8">
+    <span class="frau text-5xl soft2">00›</span>
+    <h2 class="mincho text-3xl font-bold">言語化WSのアウトプット例</h2>
+  </div>
+
+  <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-6 border-b hairline pb-3">
+    <span class="label text-gold">言語化WS 成果物パッケージ（例）</span>
+    <span class="text-[14px] soft">全6ドキュメント・すべてダミー</span>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <!-- doc 1 -->
+    <div class="bg-card border hairline card-shadow p-6 transition hover:-translate-y-1">
+      <div class="flex items-center justify-between mb-4">
+        <span class="mono text-[11px] font-bold tracking-wider px-2 py-0.5 border border-gold/40 text-gold">ポリシー</span>
+        <span class="mono text-[12px] soft flex items-center gap-1"><span class="text-teal font-bold">✓</span> 確定</span>
+      </div>
+      <div class="mincho text-xl font-bold mb-2 leading-snug">組織運営ポリシー</div>
+      <p class="text-[14px] soft leading-relaxed mb-5">何のために人を雇い、どこへ向かうか。存在意義と目指す組織像。</p>
+      <div class="space-y-2"><div class="h-1.5 rounded bg-ink/10 w-full"></div><div class="h-1.5 rounded bg-ink/10 w-[85%]"></div><div class="h-1.5 rounded bg-ink/10 w-[66%]"></div></div>
+    </div>
+    <!-- doc 2 -->
+    <div class="bg-card border hairline card-shadow p-6 transition hover:-translate-y-1">
+      <div class="flex items-center justify-between mb-4">
+        <span class="mono text-[11px] font-bold tracking-wider px-2 py-0.5 border border-gold/40 text-gold">クレド</span>
+        <span class="mono text-[12px] soft flex items-center gap-1"><span class="text-teal font-bold">✓</span> 確定</span>
+      </div>
+      <div class="mincho text-xl font-bold mb-2 leading-snug">クレド（行動規範）</div>
+      <p class="text-[14px] soft leading-relaxed mb-5">全員が体現する行動原則。日々の判断のよりどころ。</p>
+      <div class="space-y-2"><div class="h-1.5 rounded bg-ink/10 w-[92%]"></div><div class="h-1.5 rounded bg-ink/10 w-full"></div><div class="h-1.5 rounded bg-ink/10 w-[70%]"></div></div>
+    </div>
+    <!-- doc 3 -->
+    <div class="bg-card border hairline card-shadow p-6 transition hover:-translate-y-1">
+      <div class="flex items-center justify-between mb-4">
+        <span class="mono text-[11px] font-bold tracking-wider px-2 py-0.5 border border-gold/40 text-gold">判断基準</span>
+        <span class="mono text-[12px] soft flex items-center gap-1"><span class="text-teal font-bold">✓</span> 確定</span>
+      </div>
+      <div class="mincho text-xl font-bold mb-2 leading-snug">意思決定の判断軸</div>
+      <p class="text-[14px] soft leading-relaxed mb-5">何を、どの順序で大切に決めるか。苦境時の優先順位まで。</p>
+      <div class="space-y-2"><div class="h-1.5 rounded bg-ink/10 w-full"></div><div class="h-1.5 rounded bg-ink/10 w-[80%]"></div><div class="h-1.5 rounded bg-ink/10 w-[60%]"></div></div>
+    </div>
+    <!-- doc 4 -->
+    <div class="bg-card border hairline card-shadow p-6 transition hover:-translate-y-1">
+      <div class="flex items-center justify-between mb-4">
+        <span class="mono text-[11px] font-bold tracking-wider px-2 py-0.5 border border-gold/40 text-gold">人材要件</span>
+        <span class="mono text-[12px] soft flex items-center gap-1"><span class="text-teal font-bold">✓</span> 確定</span>
+      </div>
+      <div class="mincho text-xl font-bold mb-2 leading-snug">期待人材像・マネジメント像</div>
+      <p class="text-[14px] soft leading-relaxed mb-5">求める姿勢と役割。マネジメントが最初に体現する。</p>
+      <div class="space-y-2"><div class="h-1.5 rounded bg-ink/10 w-[95%]"></div><div class="h-1.5 rounded bg-ink/10 w-[72%]"></div><div class="h-1.5 rounded bg-ink/10 w-full"></div></div>
+    </div>
+    <!-- doc 5 -->
+    <div class="bg-card border hairline card-shadow p-6 transition hover:-translate-y-1">
+      <div class="flex items-center justify-between mb-4">
+        <span class="mono text-[11px] font-bold tracking-wider px-2 py-0.5 border border-gold/40 text-gold">評価</span>
+        <span class="mono text-[12px] soft flex items-center gap-1"><span class="text-teal font-bold">✓</span> 確定</span>
+      </div>
+      <div class="mincho text-xl font-bold mb-2 leading-snug">評価・処遇ポリシー</div>
+      <p class="text-[14px] soft leading-relaxed mb-5">報われるべき行動の定義。再現性と挑戦への貢献を起点に。</p>
+      <div class="space-y-2"><div class="h-1.5 rounded bg-ink/10 w-full"></div><div class="h-1.5 rounded bg-ink/10 w-[82%]"></div><div class="h-1.5 rounded bg-ink/10 w-[88%]"></div></div>
+    </div>
+    <!-- doc 6 -->
+    <div class="bg-card border hairline card-shadow p-6 transition hover:-translate-y-1">
+      <div class="flex items-center justify-between mb-4">
+        <span class="mono text-[11px] font-bold tracking-wider px-2 py-0.5 border border-gold/40 text-gold">境界線</span>
+        <span class="mono text-[12px] soft flex items-center gap-1"><span class="text-teal font-bold">✓</span> 確定</span>
+      </div>
+      <div class="mincho text-xl font-bold mb-2 leading-snug">ガードレール</div>
+      <p class="text-[14px] soft leading-relaxed mb-5">守るべき一線と、やらないこと。判断の自由度の枠。</p>
+      <div class="space-y-2"><div class="h-1.5 rounded bg-ink/10 w-[90%]"></div><div class="h-1.5 rounded bg-ink/10 w-full"></div><div class="h-1.5 rounded bg-ink/10 w-[64%]"></div></div>
+    </div>
+  </div>
+
+  <div class="mt-9 flex flex-col md:flex-row md:items-center gap-4 justify-between border-t hairline pt-6">
+    <p class="text-[15px] soft max-w-xl">この成果物群が、A‑1の <b class="text-ink">「等級 × 職種の要件」</b> のインプットになります。</p>
+    <button data-step="a1" class="goto shrink-0 group inline-flex items-center gap-3 bg-ink text-paper px-7 py-4 text-[17px] font-medium">要件定義へ（A‑1） <span class="frau group-hover:translate-x-1 transition-transform text-xl">→</span></button>
   </div>
 </section>
 
@@ -597,7 +679,7 @@ const scoreC = m => suff(m)*0.6 + m.pot*0.4;
 const palette=['#B58A36','#0F5E58','#B0492B','#3E6E8E','#7A5BA6','#4B7A3E'];
 
 /* ====================== NAV ====================== */
-const steps=['s0','a1','a2','b','c','val'];
+const steps=['s0','s0b','a1','a2','b','c','val'];
 function showStep(id){
   steps.forEach(s=>document.getElementById(s).classList.toggle('active',s===id));
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('on',b.dataset.step===id));
