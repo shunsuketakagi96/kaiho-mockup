@@ -656,20 +656,20 @@ const COMPS = [
 // sc = CxOの主観評価（スライダー初期値） / obj = AIが客観データから独立に推定した値（差がある項目のみ）/ ev = その客観推定の根拠
 const MGRS = [
   // 即・委譲候補（充足◎・ポテ◎）
-  {name:'佐藤 健太', role:'第一事業部 部長', pot:86, sc:{decision:4,pl:3,people:4,market:4,vision:5,closing:4,autonomy:4},
+  {name:'佐藤 健太', role:'第一事業部 部長', pot:82, sc:{decision:4,pl:3,people:4,market:4,vision:5,closing:4,autonomy:4},
    obj:{closing:5}, ev:{closing:'1on1・会議ログで、紛糾した議論を収束させた場面が突出して多い'}, verdict:'ok', tasks:['子会社の損益責任を段階委譲','次世代CEO候補として越境経験を付与']},
-  {name:'鈴木 美咲', role:'コーポレート マネージャー', pot:72, sc:{decision:3,pl:4,people:3,market:3,vision:3,closing:4,autonomy:3},
+  {name:'鈴木 美咲', role:'コーポレート マネージャー', pot:70, sc:{decision:3,pl:3,people:3,market:3,vision:3,closing:3,autonomy:3},
    obj:{vision:2}, ev:{vision:'全社方針を自分の言葉で語り、方向づけた発話の頻度が低い'}, verdict:'partial', tasks:['全社方針の翻訳・伝達役','市場構造の学習プログラム']},
   // 育成投資（充足△・ポテ◎）
-  {name:'渡辺 翔', role:'新規事業 マネージャー', pot:90, sc:{decision:3,pl:2,people:3,market:3,vision:2,closing:2,autonomy:2},
+  {name:'渡辺 翔', role:'新規事業 マネージャー', pot:88, sc:{decision:3,pl:2,people:3,market:1,vision:1,closing:1,autonomy:1},
    obj:{decision:2}, ev:{decision:'担当PJ実績では、不可逆な投資・撤退判断を主導した経験が乏しい'}, verdict:'partial', tasks:['不可逆判断の同席→委譲','PLの自走管理を3ヶ月OJT']},
-  {name:'中村 彩花', role:'第一事業部 マネージャー', pot:64, sc:{decision:2,pl:3,people:3,market:2,vision:2,closing:2,autonomy:2},
+  {name:'中村 彩花', role:'第一事業部 マネージャー', pot:64, sc:{decision:2,pl:3,people:3,market:2,vision:1,closing:2,autonomy:1},
    obj:{people:4}, ev:{people:'1on1ログで、部下の強み・適性を的確に見立てた発言が多い'}, verdict:'partial', tasks:['小規模チームのリード経験','登用判断への関与を増やす']},
   // 現状維持・横展開（充足◎・ポテ△）
-  {name:'田中 大輔', role:'第二事業部 部長', pot:50, sc:{decision:4,pl:4,people:3,market:4,vision:4,closing:4,autonomy:3},
+  {name:'田中 大輔', role:'第二事業部 部長', pot:42, sc:{decision:4,pl:4,people:3,market:4,vision:4,closing:4,autonomy:3},
    obj:{}, ev:{}, verdict:'ok', tasks:['安定戦力として権限を維持・拡張','後進育成のメンター役']},
   // 別途検討（充足△・ポテ△）
-  {name:'山本 怜', role:'第三事業部 マネージャー', pot:38, sc:{decision:2,pl:2,people:2,market:2,vision:1,closing:2,autonomy:2},
+  {name:'山本 怜', role:'第三事業部 マネージャー', pot:32, sc:{decision:2,pl:2,people:2,market:2,vision:1,closing:2,autonomy:1},
    obj:{}, ev:{}, verdict:'no', tasks:['まず自走と数値管理の基礎を固める','権限委譲は次サイクルで再評価']},
 ];
 const objOf=(m,c)=>(m.obj&&m.obj[c.id]!=null)?m.obj[c.id]:m.sc[c.id];
