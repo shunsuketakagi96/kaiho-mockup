@@ -33,6 +33,10 @@
     --line:rgba(21,18,12,.16); --teal:#0E5A54; --teal-bri:#15847C; --gold:#8A6A1E; --terra:#A8401F;
   }
   html{scroll-behavior:smooth;}
+  .ddot{cursor:pointer;transition:box-shadow .15s;}
+  .ddot:hover{box-shadow:0 0 0 3px var(--ink),0 5px 16px -2px rgba(0,0,0,.55)!important;z-index:5;}
+  .d-modal-card{animation:dmodal .22s ease;}
+  @keyframes dmodal{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
   body{
     background:var(--paper); color:var(--ink);
     font-family:"Zen Kaku Gothic New",sans-serif;
@@ -596,40 +600,8 @@
     <p id="d-alert-body" class="text-[15px] leading-relaxed"></p>
   </div>
 
-  <!-- 全体ビュー -->
-  <div class="label mb-4">全体ビュー</div>
-  <div class="grid lg:grid-cols-3 gap-8 mb-12">
-    <div class="lg:col-span-2 bg-card border hairline card-shadow p-8 pr-12">
-      <div class="flex items-baseline justify-between mb-7 flex-wrap gap-2">
-        <span class="label">直近4回の動き</span>
-        <span class="mono text-[12px] soft">○○○● 古い → 最新</span>
-      </div>
-      <div class="relative aspect-square w-full max-w-[500px] mx-auto">
-        <div class="absolute inset-0 grid grid-cols-2 grid-rows-2">
-          <div class="border-r-2 border-b hairline bg-gold/5 p-3"><span class="label text-gold/80">育成投資</span></div>
-          <div class="border-b hairline bg-teal/10 p-3 text-right"><span class="label text-teal">即・委譲候補</span></div>
-          <div class="border-r-2 hairline p-3 flex items-end"><span class="label soft2">別途検討</span></div>
-          <div class="p-3 flex items-end justify-end"><span class="label soft text-right">現状維持</span></div>
-        </div>
-        <svg id="d-arrows" class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-        <div class="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full text-[13px] font-bold whitespace-nowrap">成長ポテンシャル 高</div>
-        <div class="absolute top-1/2 -right-4 translate-x-full -translate-y-1/2 text-[13px] font-bold [writing-mode:vertical-rl] whitespace-nowrap">要件充足度 高</div>
-        <div id="d-dots" class="absolute inset-0"></div>
-      </div>
-    </div>
-    <div class="bg-card border hairline card-shadow p-6">
-      <div class="label mb-1">メンバー</div>
-      <div class="text-[13px] soft mb-4">名前をクリックで個人の変遷</div>
-      <div id="d-list" class="space-y-1"></div>
-    </div>
-  </div>
-
-  <!-- 個人ビュー（ドリルダウン） -->
-  <div class="label mb-4">個人ビュー — 変遷</div>
-  <div id="d-detail" class="bg-card border hairline card-shadow p-6 md:p-8 mb-12"></div>
-
-  <!-- 業績相関 -->
-  <div class="bg-card border hairline card-shadow p-6 md:p-8 mb-6">
+  <!-- 業績相関（最上部） -->
+  <div class="bg-card border hairline card-shadow p-6 md:p-8 mb-12">
     <div class="flex flex-wrap items-baseline justify-between gap-3 mb-5">
       <div class="blocktitle text-teal">業績（KGI / KPI）との相関</div>
       <span class="mono text-[12px] soft">行をクリックで個人の詳細へ</span>
@@ -639,6 +611,28 @@
       <span class="frau text-gold text-2xl leading-none shrink-0">←</span>
       <span class="leading-relaxed">全員が右上に動いても <b>業績が連動しない</b> 状態が続くなら、何を“成長”と定義したかの <b class="text-ink">00 言語化WSに立ち返る</b>。人の変化と事業の結果をつなぐのが、事業 × 人事の握りです。</span>
     </div>
+  </div>
+
+  <!-- 全体ビュー -->
+  <div class="label mb-4">全体ビュー</div>
+  <div class="bg-card border hairline card-shadow p-8 mb-12">
+    <div class="flex items-baseline justify-between mb-7 flex-wrap gap-2">
+      <span class="label">直近4回の動き — マネージャー全員</span>
+      <span class="mono text-[12px] soft">○○○● 古い → 最新</span>
+    </div>
+    <div class="relative aspect-square w-full max-w-[500px] mx-auto">
+      <div class="absolute inset-0 grid grid-cols-2 grid-rows-2">
+        <div class="border-r-2 border-b hairline bg-gold/5 p-3"><span class="label text-gold/80">育成投資</span></div>
+        <div class="border-b hairline bg-teal/10 p-3 text-right"><span class="label text-teal">即・委譲候補</span></div>
+        <div class="border-r-2 hairline p-3 flex items-end"><span class="label soft2">別途検討</span></div>
+        <div class="p-3 flex items-end justify-end"><span class="label soft text-right">現状維持</span></div>
+      </div>
+      <svg id="d-arrows" class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <div class="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full text-[13px] font-bold whitespace-nowrap">成長ポテンシャル 高</div>
+      <div class="absolute top-1/2 -right-4 translate-x-full -translate-y-1/2 text-[13px] font-bold [writing-mode:vertical-rl] whitespace-nowrap">要件充足度 高</div>
+      <div id="d-dots" class="absolute inset-0"></div>
+    </div>
+    <div class="text-[12px] soft2 text-center mt-4 max-w-2xl mx-auto leading-relaxed">点＝各マネージャー（頭文字）。○○○● が古い→最新の4ヶ月の動き。<b>最新位置のマーク</b>、または上の <b>業績相関</b> の行をクリックすると、その人の変遷がウィンドウで開きます。</div>
   </div>
 
   <div class="flex justify-end">
@@ -763,6 +757,18 @@
 
 </main>
 
+<!-- 個人ビュー モーダル -->
+<div id="d-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 md:p-8">
+  <div id="d-modal-bg" class="absolute inset-0 bg-ink/60" style="backdrop-filter:blur(2px)"></div>
+  <div class="d-modal-card relative bg-paper border hairline card-shadow w-full max-w-3xl max-h-[88vh] overflow-y-auto">
+    <div class="sticky top-0 z-10 flex items-center justify-between px-6 md:px-8 py-4 border-b hairline" style="background:rgba(250,249,244,.96);backdrop-filter:blur(6px)">
+      <span class="label text-teal">個人ビュー — 変遷</span>
+      <button id="d-modal-close" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-ink/10 transition text-[22px] leading-none soft" aria-label="閉じる">✕</button>
+    </div>
+    <div id="d-modal-body" class="p-6 md:p-8"></div>
+  </div>
+</div>
+
 <footer class="mt-16" style="background:#15120C">
   <div class="max-w-[1200px] mx-auto px-6 py-9 flex flex-col md:flex-row gap-3 justify-between md:items-baseline text-[14px] mono" style="color:rgba(240,235,224,.62)">
     <span class="flex items-baseline gap-3"><span class="mincho text-[19px] font-bold" style="color:#FAF9F4">解放</span> 経営判断の言語化と権限委譲の仕組み化</span>
@@ -805,7 +811,7 @@ const MGRS = [
 // 継続モニタリング（D）：今月の変化分・業績相関（MGRSと同順）
 const MON = [
   {dSuff:2,  dPot:1,  trend:'up',   bu:'第一事業部',   kgi:'営業利益', kgiDelta:'前月比 +12%', kgiTrend:'up',   corr:'人の力量↑と業績↑が連動',         alert:false, action:'子会社の損益責任を委譲フェーズへ移行'},
-  {dSuff:5,  dPot:3,  trend:'up',   bu:'コーポレート', kgi:'（PL責任外）', kgiDelta:'—',       kgiTrend:'flat', corr:'間接部門のため相関は対象外',         alert:false, action:'全社方針の翻訳役を付与し、vision面を継続観測'},
+  {dSuff:5,  dPot:3,  trend:'up',   bu:'コーポレート', kgi:'採用充足率', kgiDelta:'前月比 +5pt', kgiTrend:'up',   corr:'人の力量↑と採用成果↑が連動',       alert:false, action:'全社方針の翻訳役を付与し、vision面を継続観測'},
   {dSuff:9,  dPot:2,  trend:'up',   bu:'新規事業',     kgi:'新規ARR',  kgiDelta:'前月比 +8%',  kgiTrend:'up',   corr:'人は改善・業績はまだ小さく未連動',   alert:true,  action:'不可逆判断の同席を継続。来月は単独委譲を試行'},
   {dSuff:4,  dPot:2,  trend:'up',   bu:'第一事業部',   kgi:'部門粗利', kgiDelta:'前月比 +3%',  kgiTrend:'up',   corr:'弱い連動（観察を継続）',             alert:true,  action:'小規模チームのリード経験を付与'},
   {dSuff:0,  dPot:-1, trend:'flat', bu:'第二事業部',   kgi:'営業利益', kgiDelta:'前月比 +1%',  kgiTrend:'flat', corr:'高位で安定（連動を維持）',           alert:false, action:'現状の権限を維持し、後進育成のメンターへ'},
@@ -1065,13 +1071,12 @@ const rank=document.getElementById('c-rank');
 const MONTHS=['3月','4月','5月','6月'];
 const HIST=[
   {suff:[84,85,86,88], pot:[79,80,81,82], kHist:[88,93,98,104],    kUnit:'百万円'},
-  {suff:[57,60,61,66], pot:[64,67,67,70], kHist:null,             kUnit:''},
+  {suff:[57,60,61,66], pot:[64,67,67,70], kHist:[78,82,85,90],    kUnit:'%'},
   {suff:[24,28,29,38], pot:[82,85,86,88], kHist:[32,35,38,41],     kUnit:'百万円'},
   {suff:[37,40,40,44], pot:[60,62,62,64], kHist:[120,123,125,128], kUnit:'百万円'},
   {suff:[82,82,81,81], pot:[45,44,43,42], kHist:[150,149,150,151], kUnit:'百万円'},
   {suff:[44,42,40,38], pot:[36,35,33,32], kHist:[70,66,63,59],     kUnit:'百万円'},
 ];
-let dashSel=2;
 const tI={up:{s:'↑',c:'text-teal',t:'改善'},flat:{s:'→',c:'soft2',t:'横ばい'},down:{s:'↓',c:'text-terra',t:'悪化'}};
 const kc={up:'text-teal',flat:'soft2',down:'text-terra'};
 function dQuad(x,y){return x>=60&&y>=60?'即・委譲候補':x<60&&y>=60?'育成投資':x>=60&&y<60?'現状維持':'別途検討';}
@@ -1083,8 +1088,8 @@ function dashDetail(i){
   const head=`<tr class="border-b hairline"><th class="text-left py-2 pr-3 font-bold soft text-[13px]">項目</th>${MONTHS.map(mo=>`<th class="py-2 px-2 text-center font-bold text-[14px]">${mo}</th>`).join('')}</tr>`;
   const numRow=(label,arr,cls)=>`<tr class="border-b hairline"><td class="py-2.5 pr-3 font-bold text-[14px] ${cls}">${label}</td>${arr.map((v,k)=>`<td class="py-2.5 px-2 text-center mono text-[14px] ${k===n-1?'font-bold':'soft'}">${v}</td>`).join('')}</tr>`;
   const kRow = h.kHist
-    ? `<tr><td class="py-2.5 pr-3 font-bold text-[14px]">事業数値<div class="text-[11px] soft2 font-normal">${o.kgi}（${h.kUnit}）</div></td>${h.kHist.map((v,k)=>`<td class="py-2.5 px-2 text-center mono text-[14px] ${k===h.kHist.length-1?'font-bold':'soft'}">${v}</td>`).join('')}</tr>`
-    : `<tr><td class="py-2.5 pr-3 font-bold text-[14px]">事業数値</td><td colspan="${n}" class="py-2.5 px-2 text-center soft text-[13px]">—（間接部門のため対象外）</td></tr>`;
+    ? `<tr><td class="py-2.5 pr-3 font-bold text-[14px]">業績・KPI<div class="text-[11px] soft2 font-normal">${o.kgi}（${h.kUnit}）</div></td>${h.kHist.map((v,k)=>`<td class="py-2.5 px-2 text-center mono text-[14px] ${k===h.kHist.length-1?'font-bold':'soft'}">${v}</td>`).join('')}</tr>`
+    : `<tr><td class="py-2.5 pr-3 font-bold text-[14px]">業績・KPI</td><td colspan="${n}" class="py-2.5 px-2 text-center soft text-[13px]">—</td></tr>`;
   return `<div class="flex flex-wrap items-center gap-3 mb-6">
       <span class="mincho text-2xl font-bold">${m.name}</span><span class="text-[14px] soft">${m.role}</span>
       <span class="ml-auto mono text-[13px] px-2.5 py-1 border hairline">${dQuad(suff(m),m.pot)}</span>
@@ -1098,7 +1103,7 @@ function dashDetail(i){
           <div class="absolute inset-0">${marks(h.pot,'#8A6A1E')}${marks(h.suff,'#0E5A54')}</div>
         </div>
         <div class="flex justify-between mt-1.5 text-[12px] soft mono">${MONTHS.map(mo=>`<span>${mo}</span>`).join('')}</div>
-        <div class="text-[12px] soft2 mt-1">点線＝委譲ライン（要件充足度・成長ポテンシャル＝60）／ 事業数値は右の表を参照</div>
+        <div class="text-[12px] soft2 mt-1">点線＝委譲ライン（要件充足度・成長ポテンシャル＝60）／ 業績・KPIは右の表を参照</div>
       </div>
       <div>
         <div class="label mb-3">数値の推移</div>
@@ -1122,24 +1127,28 @@ function renderDash(){
     const lc=o.trend==='down'?'#A8401F':o.trend==='flat'?'#9C8676':'#0E5A54';
     lines+=`<polyline points="${h.suff.map((s,k)=>`${s},${100-h.pot[k]}`).join(' ')}" fill="none" stroke="${lc}" stroke-width="0.7" opacity="0.5" vector-effect="non-scaling-stroke"/>`;
     for(let k=0;k<n-1;k++){ dots.innerHTML+=`<div class="absolute rounded-full" style="left:${h.suff[k]}%;top:${100-h.pot[k]}%;width:7px;height:7px;transform:translate(-50%,-50%);background:${col};opacity:${(0.3+0.13*k).toFixed(2)}"></div>`; }
-    const sel=i===dashSel;
-    dots.innerHTML+=`<div class="absolute rounded-full flex items-center justify-center text-white text-[13px] font-bold mono" style="left:${h.suff[n-1]}%;top:${100-h.pot[n-1]}%;width:34px;height:34px;transform:translate(-50%,-50%);background:${col};box-shadow:0 0 0 ${sel?'3px var(--ink)':'0 transparent'}, 0 3px 12px -2px rgba(0,0,0,.45)">${m.name[0]}</div>`;
+    dots.innerHTML+=`<div class="ddot absolute rounded-full flex items-center justify-center text-white text-[13px] font-bold mono" data-i="${i}" title="${m.name} の変遷を見る" style="left:${h.suff[n-1]}%;top:${100-h.pot[n-1]}%;width:34px;height:34px;transform:translate(-50%,-50%);background:${col};box-shadow:0 3px 12px -2px rgba(0,0,0,.45)">${m.name[0]}</div>`;
   });
   document.getElementById('d-arrows').innerHTML=lines;
-  document.getElementById('d-list').innerHTML=MGRS.map((m,i)=>{const o=MON[i],t=tI[o.trend];
-    return `<button data-i="${i}" class="dashbtn w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded transition hover:bg-ink/5 ${i===dashSel?'bg-ink/5':''}">
-      <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${palette[i%palette.length]}"></span>
-      <span class="font-medium text-[15px] flex-1">${m.name}</span>
-      ${o.alert?'<span class="mono text-[10px] text-terra border border-terra/40 px-1 py-0.5">!</span>':''}
-      <span class="${t.c} font-bold text-[16px]">${t.s}</span>
-    </button>`;}).join('');
-  document.querySelectorAll('.dashbtn').forEach(b=>b.addEventListener('click',()=>{dashSel=+b.dataset.i;renderDash();}));
-  document.getElementById('d-detail').innerHTML=dashDetail(dashSel);
-  document.getElementById('d-corr').innerHTML=`<thead><tr class="border-b hairline text-left soft text-[13px]"><th class="py-2.5 pr-4 font-bold">マネージャー</th><th class="py-2.5 pr-4 font-bold">担当</th><th class="py-2.5 pr-4 font-bold">事業数値（直近・前月比）</th><th class="py-2.5 pr-4 font-bold">人の変化</th><th class="py-2.5 font-bold">相関</th></tr></thead><tbody>`+
+  document.querySelectorAll('.ddot').forEach(d=>d.addEventListener('click',()=>openDetail(+d.dataset.i)));
+  document.getElementById('d-corr').innerHTML=`<thead><tr class="border-b hairline text-left soft text-[13px]"><th class="py-2.5 pr-4 font-bold">マネージャー</th><th class="py-2.5 pr-4 font-bold">担当</th><th class="py-2.5 pr-4 font-bold">業績・KPI（直近・前月比）</th><th class="py-2.5 pr-4 font-bold">人の変化</th><th class="py-2.5 font-bold">相関</th></tr></thead><tbody>`+
     MGRS.map((m,i)=>{const o=MON[i],t=tI[o.trend],h=HIST[i];const kv=h.kHist?`${h.kHist[h.kHist.length-1]}${h.kUnit} <span class="${kc[o.kgiTrend]} font-bold">${o.kgiDelta}</span>`:'<span class="soft">—</span>';
       return `<tr data-i="${i}" class="dcorr border-b hairline last:border-0 cursor-pointer hover:bg-ink/5"><td class="py-3 pr-4 font-bold whitespace-nowrap">${m.name}</td><td class="py-3 pr-4 soft whitespace-nowrap">${o.bu}</td><td class="py-3 pr-4 whitespace-nowrap mono">${kv}</td><td class="py-3 pr-4 whitespace-nowrap font-bold ${t.c}">${t.s} ${t.t}</td><td class="py-3 text-[14px]">${o.corr}</td></tr>`;}).join('')+`</tbody>`;
-  document.querySelectorAll('.dcorr').forEach(r=>r.addEventListener('click',()=>{dashSel=+r.dataset.i;renderDash();const d=document.getElementById('d-detail');if(d)d.scrollIntoView({behavior:'smooth',block:'center'});}));
+  document.querySelectorAll('.dcorr').forEach(r=>r.addEventListener('click',()=>openDetail(+r.dataset.i)));
 }
+const dModal=document.getElementById('d-modal');
+function openDetail(i){
+  document.getElementById('d-modal-body').innerHTML=dashDetail(i);
+  dModal.classList.remove('hidden'); dModal.classList.add('flex');
+  dModal.scrollTop=0; document.body.style.overflow='hidden';
+}
+function closeDetail(){
+  dModal.classList.add('hidden'); dModal.classList.remove('flex');
+  document.body.style.overflow='';
+}
+document.getElementById('d-modal-close').addEventListener('click',closeDetail);
+document.getElementById('d-modal-bg').addEventListener('click',closeDetail);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dModal.classList.contains('hidden'))closeDetail();});
 renderDash();
 
 /* 設定：KPI/KGI 追加ボタン */
