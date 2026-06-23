@@ -1,0 +1,5 @@
+# Netlify 設定 — 静的サイト（ビルド無し・リポジトリ直下をそのまま公開）
+# 公開トップ（/）は index.html（白版）、/index-ember.html で熾火版を配信。
+[build]
+  publish = "."
+  command = ""
